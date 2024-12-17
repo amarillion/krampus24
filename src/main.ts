@@ -1,24 +1,16 @@
+import { IslandMap } from './islandMap';
 import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+import paletteUrl from './island-palette.png?url';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+window.addEventListener('load', async () => {
+	const canvas = document.getElementById('my-canvas') as HTMLCanvasElement;
+	const ctx = canvas.getContext("2d");
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+	if (ctx) {
+
+		const islandMap = new IslandMap({ width: 800, height: 800, paletteUrl });
+		const imageData = islandMap.generate();
+		// Draw image data to the canvas
+		ctx.putImageData(await imageData, 0, 0);
+	}
+});
