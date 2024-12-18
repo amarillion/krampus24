@@ -1,5 +1,5 @@
 import './components.define.js';
-import lynxUrl from './assets/lynx.gif?url';
+import { getImageUrl } from './imageUrl.js';
 
 const PIECES = { piecesX: 5, piecesY: 4 };
 
@@ -46,14 +46,15 @@ export class HackJigsawBoard extends HTMLElement {
 		this._mixPieces = this._mixPieces.bind(this);
 	}
 
-	connectedCallback() {
+	async connectedCallback() {
 		this.shadowRoot.appendChild(template.content.cloneNode(true));
 		this.#board = this.shadowRoot.querySelector('#board');
 		this.#mixButton = this.shadowRoot.querySelector('#mix-button');
 		this.#mixButton.addEventListener('click', this._mixPieces);
 
 		const { piecesX, piecesY } = PIECES;
-		Object.assign(this.#board, { src: lynxUrl, piecesX, piecesY });
+		const src = await getImageUrl();
+		Object.assign(this.#board, { src, piecesX, piecesY });
 		range(piecesX * piecesY).forEach(() => {
 			this.#board.appendChild(templatePiece.content.cloneNode(true));
 		});

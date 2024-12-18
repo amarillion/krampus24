@@ -1,6 +1,7 @@
 import { IslandMap } from './islandMap';
 import './style.css'
 import paletteUrl from './island-palette.png?url';
+import { getImageUrl } from './imageUrl.js';
 
 import './components.define.js';
 
@@ -17,5 +18,9 @@ window.addEventListener('load', async () => {
 		ctx.putImageData(await imageData, 0, 0);
 	}
 	*/
+
+	const imgElt = document.getElementById('my-img') as HTMLImageElement;
+	imgElt.src = await getImageUrl();
+	document.body.appendChild(imgElt);
 });
 
