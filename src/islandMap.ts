@@ -1,9 +1,9 @@
 import { createNoise2D, NoiseFunction2D } from 'simplex-noise';
-import { assert } from './util/assert';
-import { Vec3 } from './util/geom/vec3';
-import { Point } from './util/geom/point';
-import { clamp } from './util/math';
-import { pointRange } from './util/geom/pointRange';
+import { assert } from './util/assert.js';
+import { Vec3 } from './util/geom/vec3.js';
+import { Point } from './util/geom/point.js';
+import { clamp } from './util/math.js';
+import { pointRange } from './util/geom/pointRange.js';
 
 /*
 

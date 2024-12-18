@@ -1,4 +1,4 @@
-import { curveOf, rotateCurveStart, rotateCurveEnd } from './jigsaw-cutout.js';
+import { curveOf, rotateCurveStart, rotateCurveEnd } from './jigsaw-cutout';
 
 /* Has curve handles in vertical orientation on both sides of the dimple */
 const EDGE_VERTICAL_VERTICAL = [

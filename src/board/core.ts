@@ -1,13 +1,15 @@
 const PROP_PROVIDES = Symbol('provides');
 
-export function provide(key, value, component) {
+type Provider = { [PROP_PROVIDES]?: Record<string, unknown> };
+
+export function provide(key: string, value: unknown, component: HTMLElement & Provider) {
 	if (!component[PROP_PROVIDES]) {
 		component[PROP_PROVIDES] = {};
 	}
 	component[PROP_PROVIDES][key] = value;
 }
 
-export function inject(key, component) {
+export function inject(key: string, component: HTMLElement & Provider) {
 	if (!component.parentElement) {
 		return;
 	}

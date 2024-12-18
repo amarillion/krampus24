@@ -1,6 +1,7 @@
 import { provide } from './core.js';
-import { findIndex, includesElementDeep } from './utils.js';
+import { findIndex, includesElementDeep } from './utils';
 import { cutoutIdOf, JigsawCutout, toSvg } from './jigsaw-cutout.js';
+import { asNonNull } from '../util/assert.js';
 
 const template = document.createElement('template');
 template.innerHTML = /* html */`
@@ -48,13 +49,20 @@ template.innerHTML = /* html */`
 `;
 
 class PuzzleBoard extends HTMLElement {
+
+	private _src: string;
+	private _canvasElement: HTMLCanvasElement;
+	private _contentElement: HTMLElement;
+	private _cutoutDefs: HTMLElement;
+	private _canvasObserver: ResizeObserver;
+	
 	constructor() {
 		super();
 		const shadowRoot = this.attachShadow({ mode: 'open' });
 		shadowRoot.appendChild(template.content.cloneNode(true));
 		this._src = '';
-		this._canvasElement = shadowRoot.querySelector('#canvas');
-		this._contentElement = shadowRoot.querySelector('#content');
+		this._canvasElement = asNonNull(shadowRoot.querySelector('#canvas'));
+		this._contentElement = asNonNull(shadowRoot.querySelector('#content'));
 		this._cutoutDefs = shadowRoot.querySelector('#cutout-defs');
 		this._updateContentSize = this._updateContentSize.bind(this);
 		this._canvasObserver = new ResizeObserver(this._updateContentSize);
@@ -63,7 +71,7 @@ class PuzzleBoard extends HTMLElement {
 	}
 
 	connectedCallback() {
-		this.src = this.getAttribute('src');
+		this.src = asNonNull(this.getAttribute('src'));
 		this._initBoard();
 		this._updateContentSize();
 		this._canvasObserver.observe(this._canvasElement);
@@ -81,29 +89,29 @@ class PuzzleBoard extends HTMLElement {
 	}
 
 	get piecesX() {
-		return parseInt(this.getAttribute('pieces-x')) || 5;
+		return parseInt(this.getAttribute('pieces-x') || '') || 5;
 	}
 	set piecesX(value) {
 		if (value === this.piecesX) { return; }
-		this.setAttribute('pieces-x', value);
+		this.setAttribute('pieces-x', `${value}`);
 		this._initBoard();
 	}
 
 	get piecesY() {
-		return parseInt(this.getAttribute('pieces-y')) || 5;
+		return parseInt(this.getAttribute('pieces-y') || '') || 5;
 	}
 	set piecesY(value) {
 		if (value === this.piecesY) { return; }
-		this.setAttribute('pieces-y', value);
+		this.setAttribute('pieces-y', `${value}`);
 		this._initBoard();
 	}
 
 	get seed() {
-		return parseInt(this.getAttribute('pieces-y')) || 5;
+		return parseInt(this.getAttribute('pieces-y') || '') || 5;
 	}
 	set seed(value) {
 		if (value === this.seed) { return; }
-		this.setAttribute('seed', value);
+		this.setAttribute('seed', `${value}`);
 		this._initBoard();
 	}
 
@@ -147,7 +155,7 @@ function apiOf(board) {
 	};
 }
 
-function loadImage({ src }) {
+function loadImage({ src }: { src: string }) {
 	return new Promise(resolve => {
 		const img = document.createElement('img');
 		img.setAttribute('rel', 'preload');

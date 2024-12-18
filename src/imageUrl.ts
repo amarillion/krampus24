@@ -1,6 +1,6 @@
-import { IslandMap } from './islandMap';
-import paletteUrl from './island-palette.png?url';
-import { assert } from './util/assert';
+import { IslandMap } from './islandMap.js';
+import paletteUrl from './assets/island-palette.png?url';
+import { assert } from './util/assert.js';
 // import lynxUrl from './assets/lynx.gif?url';
 
 export async function getImageUrl() {
@@ -17,10 +17,12 @@ export async function getImageUrl() {
 	assert(ctx);
 	ctx.putImageData(await imageData, 0, 0);
 
-	const promise = new Promise((resolve) => {
+	const promise = new Promise<Blob|null>((resolve) => {
 		canvas.toBlob(resolve);
 	});
 
-	return URL.createObjectURL(await promise);
+	const blob = await promise;
+	assert(blob);
+	return URL.createObjectURL(blob);
 	// TODO: also call revokeObjectURL...
 }

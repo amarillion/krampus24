@@ -17,6 +17,11 @@ template.innerHTML = /* html */`
 `;
 
 class PuzzlePiece extends HTMLElement {
+
+	private _board: HTMLElement;
+	private _cutoutStyleElement: HTMLElement;
+	private _coordinates: {x: number, y: number} = { x: 0, y: 0 };
+
 	constructor() {
 		super();
 		const shadowRoot = this.attachShadow({ mode: 'open' });

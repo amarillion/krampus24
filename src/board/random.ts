@@ -4,7 +4,7 @@ export function randomThunk({ seed = String(Math.random()) } = {}) {
 }
 
 /* See: https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript */
-function xmur3(str) {
+function xmur3(str: string) {
 	let h = 1779033703 ^ str.length;
 	for(let i = 0; i < str.length; i++) {
 		h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
@@ -17,7 +17,7 @@ function xmur3(str) {
 	};
 }
 
-function sfc32(a, b, c, d) {
+function sfc32(a: number, b: number, c: number, d: number) {
 	return function() {
 		a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0;
 		let t = (a + b) | 0;

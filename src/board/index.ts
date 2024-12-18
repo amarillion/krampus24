@@ -35,6 +35,6 @@ export function setup({ playground, params }) {
 
 }
 
-function range(length) {
+function range(length: number) {
 	return [...Array(length).keys()];
 }

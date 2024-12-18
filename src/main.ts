@@ -1,6 +1,4 @@
-import { IslandMap } from './islandMap';
 import './style.css'
-import paletteUrl from './island-palette.png?url';
 import { getImageUrl } from './imageUrl.js';
 
 import './components.define.js';
