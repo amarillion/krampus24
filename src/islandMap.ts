@@ -26,12 +26,36 @@ export type ConfigType = {
 	paletteUrl: string;
 };
 
+type Vec3 = {
+	x: number,
+	y: number,
+	z: number
+};
+
+function dot_product(a: Vec3, b: Vec3) {
+	return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+function vec_length(v: Vec3) {
+	return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+function vec_normalize(v: Vec3) {
+	const len = vec_length(v);
+	return {
+		x: v.x / len,
+		y: v.y / len,
+		z: v.z / len
+	};
+}
+
 export class IslandMap {
 
 	config: ConfigType;
 	noise2D: NoiseFunction2D;
 	palettePromise: Promise<ImageData>;
-	
+	lightSource = vec_normalize({ x: 0.5, y: 0.8, z: -0.3 });
+
 	constructor(config: ConfigType) {
 		this.config = config;
 
@@ -44,7 +68,7 @@ export class IslandMap {
 	async loadPalette() {
 		const img = new Image();
 		img.src = this.config.paletteUrl;
-		return new Promise((resolve, reject) => {
+		return new Promise<ImageData>((resolve, reject) => {
 			img.onload = () => {
 				const canvas = document.createElement('canvas');  
 				const context = canvas.getContext("2d");
@@ -60,9 +84,29 @@ export class IslandMap {
 		});	
 	}
 
+	// return value between 0 and 1.
+	getHeight(x: number, y : number) {
+		const { width, height } = this.config;
+
+		// two levels of fractal noise
+		const val2 = this.noise2D(x / 400, y / 400);
+		const val1 = this.noise2D(x / 200, y / 200);
+		const val0 = this.noise2D(x / 100, y / 100);
+
+		let h = 0.5 + 0.5 * (val2 + 0.5 * val1 * 0.3 + val0 * 0.2);
+
+		// distance to center
+		// TODO use point class...
+		let dx = ((width / 2) - x);
+		let dy = ((height / 2) - y);
+		let dist = Math.sqrt(dx * dx + dy * dy) / Math.sqrt((width * width / 4) + (height * height / 4));
+		
+		// TODO: bound utility function...
+		return Math.max(0, Math.min(1.0, h - dist));
+	}
+
 	async generate() {
 		const { width, height } = this.config;
-		const { noise2D } = this;
 
 		const palette = await this.palettePromise;
 
@@ -76,27 +120,25 @@ export class IslandMap {
 			for (let x = 0; x < width; ++x) {
 				let idx = ((y * width) + x) * 4;
 
-				// two levels of fractal noise
-				const val2 = noise2D(x / 400, y / 400);
-				const val1 = noise2D(x / 200, y / 200);
-				const val0 = noise2D(x / 100, y / 100);
-				let val = 0.5 + 0.5 * (val2 + 0.6 * val1 * 0.1 + val0 * 0.3);
+				const h = this.getHeight(x, y);
 
-				// distance to center
-				// TODO use point class...
-				let dx = ((width / 2) - x);
-				let dy = ((height / 2) - y);
-				let dist = Math.sqrt(dx * dx + dy * dy) / Math.sqrt((width * width / 4) + (height * height / 4));
-				
-				// TODO: bound utility function...
-				val = Math.max(0, Math.min(1.0, val - dist));
+				// calculate shadow
+				let light = 0.85;
+				// if (h > 0.148) {
+				if (h > 0) {
+					let dx = h - this.getHeight(x - 1, y);
+					let dy = h - this.getHeight(x, y - 1);
+
+					const angle = dot_product(vec_normalize({ x: dx, y:  dy, z: 0.01 }), this.lightSource);
+					light = Math.cos(angle);
+				}
 
 				// map value to palette...
-				const pal = Math.floor(val * palette.width) * 4;
+				const pal = Math.floor(h * (palette.width - 1)) * 4;
 
-				imageData.data[idx + 0] = palette.data[pal + 0]; // R value
-				imageData.data[idx + 1] = palette.data[pal + 1]; // G value
-				imageData.data[idx + 2] = palette.data[pal + 2]; // B value
+				imageData.data[idx + 0] = light * palette.data[pal + 0]; // R value
+				imageData.data[idx + 1] = light * palette.data[pal + 1]; // G value
+				imageData.data[idx + 2] = light * palette.data[pal + 2]; // B value
 				imageData.data[idx + 3] = 255; // A value
 			}
 		}
