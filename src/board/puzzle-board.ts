@@ -24,12 +24,11 @@ template.innerHTML = /* html */`
 	}
 
 	#content {
-		position: absolute;
 		display: grid;
 		grid-area: host;
 		grid-template: 'container';
-		width: 425px;
-		height: 425px;
+		width: 800px; /* TODO adjust */
+		height: 800px; /* TODO adjust */
 	}
 
 	#canvas {

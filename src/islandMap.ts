@@ -76,7 +76,7 @@ export class IslandMap {
 		let h = 0.5 + 0.5 * (val2 + 0.5 * val1 * 0.3 + val0 * 0.2);
 
 		// distance to center
-		const delta = new Point(width, height).minus({ x, y });
+		const delta = new Point(width / 2, height / 2).minus({ x, y });
 		let dist = delta.length() / Point.length({x: width / 2, y: height / 2 });
 		
 		return clamp(h - dist, 0.0, 1.0);
