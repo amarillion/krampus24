@@ -1,7 +1,7 @@
 import { provide } from './core.js';
 import { findIndex, includesElementDeep } from './utils';
 import { cutoutIdOf, JigsawCutout, toSvg } from './jigsaw-cutout.js';
-import { asNonNull } from '../util/assert.js';
+import { notNull } from '../util/assert.js';
 
 const template = document.createElement('template');
 template.innerHTML = /* html */`
@@ -60,8 +60,8 @@ class PuzzleBoard extends HTMLElement {
 		const shadowRoot = this.attachShadow({ mode: 'open' });
 		shadowRoot.appendChild(template.content.cloneNode(true));
 		this._src = '';
-		this._canvasElement = asNonNull(shadowRoot.querySelector('#canvas'));
-		this._contentElement = asNonNull(shadowRoot.querySelector('#content'));
+		this._canvasElement = notNull(shadowRoot.querySelector('#canvas'));
+		this._contentElement = notNull(shadowRoot.querySelector('#content'));
 		this._cutoutDefs = shadowRoot.querySelector('#cutout-defs');
 		this._updateContentSize = this._updateContentSize.bind(this);
 		this._canvasObserver = new ResizeObserver(this._updateContentSize);
@@ -70,7 +70,7 @@ class PuzzleBoard extends HTMLElement {
 	}
 
 	connectedCallback() {
-		this.src = asNonNull(this.getAttribute('src'));
+		this.src = notNull(this.getAttribute('src'));
 		this._initBoard();
 		this._updateContentSize();
 		this._canvasObserver.observe(this._canvasElement);

@@ -24,6 +24,7 @@
 		"@stylistic/semi": [ "error", "always" ], // Require semicolons at the end of each statement.
 		"@stylistic/arrow-parens": [ "error", "as-needed", { "requireForBlockBody": false } ], // Allow arrow functions to omit parentheses when they have exactly one parameter.
 		"@stylistic/no-trailing-spaces": [ "error", { "skipBlankLines": true } ], // Allow blank lines.
-		"@stylistic/member-delimiter-style": [ "error", { "multiline": { "delimiter": "comma", "requireLast": true }, "singleline": { "delimiter": "comma" } } ], // Require delimitation using comma. 
+		"@stylistic/member-delimiter-style": [ "error", { "multiline": { "delimiter": "comma", "requireLast": true }, "singleline": { "delimiter": "comma" } } ], // Require delimitation using comma.
+		"@stylistic/padded-blocks": [ "off "]
 	}
 }
