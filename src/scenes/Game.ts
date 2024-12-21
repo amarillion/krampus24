@@ -6,6 +6,14 @@ import { JigsawCutout } from '../board/jigsaw-cutout.ts';
 import { IPoint, Point } from '../util/geom/point.ts';
 import { PuzzlePiece } from '../sprites/PuzzlePiece.ts';
 import { DragDropBehavior } from '../phaser/DragDropBehavior.ts';
+import { randomInt } from '../util/random.ts';
+
+const width = 800;
+const height = 800;
+const piecesX = 4;
+const piecesY = 4;
+const mapSize = new Point(width, height);
+const puzzleSize = new Point(piecesX, piecesY);
 
 export default class extends Phaser.Scene {
 
@@ -19,12 +27,6 @@ export default class extends Phaser.Scene {
 	puzzlePieces: PuzzlePiece[] = [];
 
 	async createImages() {
-		const width = 800;
-		const height = 800;
-		const mapSize = new Point(width, height);
-		const piecesX = 8;
-		const piecesY = 8;
-		const puzzleSize = new Point(piecesX, piecesY);
 
 		const islandMap = new IslandMap({ width, height, paletteUrl });
 		const imageData = await islandMap.generate();
@@ -93,15 +95,50 @@ export default class extends Phaser.Scene {
 			this.puzzlePieces.push(puzzlePiece);
 		}
 
-		this.add.text(100, 100, 'Phaser 3 - TypeScript - Vite ', {
-			font: '64px Bangers',
-			color: '#7744ff',
-		});
+		// add event listeners
+		for (const piece of this.puzzlePieces) {
+			piece.on('piece-in-place', () => this.checkPuzzleComplete());
+			piece.on('sfx', this.playSample);
+		}
 	}
 
-	create() {
+	playSample(sfxId: string) {
+		console.log(`Please play sfx ${sfxId}`);
+	}
+
+	checkPuzzleComplete() {
+		if (this.puzzlePieces.every(i => i.isCorrectPosition())) {
+			this.add.text(100, 100, 'Congratulations - Puzzle Complete!', {
+				font: '64px Bangers',
+				color: '#7744ff',
+			});
+				// TODO: particle effect
+			this.playSample('puzzle-complete');
+		}
+	}
+
+	scatterPuzzlePieces() {
+		// TODO: Point.divide
+		const pieceSize = new Point(mapSize.x / puzzleSize.x, mapSize.y / puzzleSize.y);
+		for (const piece of this.puzzlePieces) {
+			
+			let x = randomInt(width - pieceSize.x);
+			let y = randomInt(height - pieceSize.y);
+			
+			// correction because each piece is actually a full-size texture.
+			x -= (piece.config.gridPos.x * pieceSize.x);
+			y -= (piece.config.gridPos.y * pieceSize.y);
+
+			x -= x % 20;
+			y -= y % 20;
+			piece.setPosition(x, y);
+		}
+	}
+
+	async create() {
 		// async delegate...
-		this.createImages();
+		await this.createImages();
+		this.scatterPuzzlePieces();
 
 		const dragDropBehavior = new DragDropBehavior();
 		
