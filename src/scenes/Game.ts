@@ -15,10 +15,16 @@ export default class extends Phaser.Scene {
 	preload() {}
 	
 	async createImages() {
-		const islandMap = new IslandMap({ width: 800, height: 800, paletteUrl });
+		const width = 800;
+		const height = 800;
+		const mapSize = new Point(width, height);
+		const piecesX = 8;
+		const piecesY = 8;
+
+		const islandMap = new IslandMap({ width, height, paletteUrl });
 		const imageData = await islandMap.generate();
 
-		const clipOutData = JigsawCutout({ piecesX: 8, piecesY: 8, seed: 'cherry' });
+		const clipOutData = JigsawCutout({ piecesX, piecesY, seed: 'cherry' });
 
 		// generate full map.
 		{
@@ -37,7 +43,7 @@ export default class extends Phaser.Scene {
 		const bmp = await createImageBitmap(imageData);
 
 		for (const piece of clipOutData.pieces) {
-			const canvasTexture = notNull(this.textures.createCanvas(`piece-${piece.x}-${piece.y}`, 800, 800));
+			const canvasTexture = notNull(this.textures.createCanvas(`piece-${piece.x}-${piece.y}`, width, height));
 			const canvas = canvasTexture.getSourceImage() as HTMLCanvasElement;
 			const context = notNull(canvas.getContext('2d'));
 			
@@ -47,21 +53,20 @@ export default class extends Phaser.Scene {
 			context.strokeStyle = 'lightgrey';
 
 			context.beginPath();
-			const width = 800;
-			const height = 800;
+
 			let pos = new Point(piece.moveArgs[0] * width, 
 				piece.moveArgs[1] * height);
 			context.moveTo(pos.x, pos.y);
 			for (const edge of piece.edges) {
 				for (const segment of edge) {
 					if (segment.command === 'l') {
-						pos = pos.plus(new Point(segment.args[0], segment.args[1]).mul(800));
+						pos = pos.plus(new Point(segment.args[0], segment.args[1]).times(mapSize));
 						context.lineTo(pos.x, pos.y);
 					}
 					else if (segment.command === 'c') {
-						const way1 = pos.plus(new Point(segment.args[0], segment.args[1]).mul(800));
-						const way2 = pos.plus(new Point(segment.args[2], segment.args[3]).mul(800));
-						pos = pos.plus(new Point(segment.args[4], segment.args[5]).mul(800));
+						const way1 = pos.plus(new Point(segment.args[0], segment.args[1]).times(mapSize));
+						const way2 = pos.plus(new Point(segment.args[2], segment.args[3]).times(mapSize));
+						pos = pos.plus(new Point(segment.args[4], segment.args[5]).times(mapSize));
 						context.bezierCurveTo(
 							way1.x, way1.y,
 							way2.x, way2.y,
@@ -74,14 +79,14 @@ export default class extends Phaser.Scene {
 
 			// use drawImage instead of putImageData, the latter doesn't adhere to clip rect.
 			context.drawImage(bmp, 0, 0);
-			// context.stroke();
-			// context.closePath();
 
 			canvasTexture.refresh(); // only needed in case we're on WebGL...
-			const img = this.add.image(Math.random() * 1200, Math.random() * 800, `piece-${piece.x}-${piece.y}`)
-				.setOrigin(piece.moveArgs[0], piece.moveArgs[1]) // TODO: this sets the anchor to the top-right corner, which is not ideal for rotation...
-				.setScale(1.0);
-			img.setAngle(Math.random() * 360);
+
+			// by default, Origin is 0.5, meaning that the center of the puzzle will be drawn at screen coordinate 0,0.
+			const sprite = this.add.sprite(
+				0, 0, 
+				`piece-${piece.x}-${piece.y}`).setOrigin(0);
+			// sprite.setAngle(Math.random() * 360);
 		}
 
 
