@@ -19,23 +19,6 @@ export function includes<T>(element: T, array: T[]) {
 	return -1 < indexOf(element, array);
 }
 
-/** Deep checks if a DOM element is included by another */
-export function includesElementDeep(element: Element) {
-	return (child: Element) => {
-		if (child === element) { return true; }
-		const { children = [] } = child;
-		//TODO: might be bug?
-		if (includes(element, children)) { return true };
-		for (const child of children) {
-			//TODO: might be bug?
-			if (includes(element, child)) {
-				return true;
-			}
-		}
-		return false;
-	}
-}
-
 /** Used as https://ramdajs.com/docs/#indexOf */
 export function indexOf<T>(value: T, array: T[]) {
 	return findIndex(element => element === value, array);

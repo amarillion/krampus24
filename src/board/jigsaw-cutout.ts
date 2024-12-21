@@ -1,32 +1,32 @@
 import { randomThunk } from './random.js';
 import { always, pipe } from './utils.js';
 
-type MoveType = [ number, number ];
-type LineSegmentType = {
-	command: 'l', args: [ number, number ] 
-}
-type CurveSegmentType = {
-	command: 'c', args: [ number, number, number, number, number, number ] 
-}
+export type MoveType = [ number, number ];
+// type LineSegmentType = {
+// 	command: 'l', args: [ number, number ] 
+// }
+// type CurveSegmentType = {
+// 	command: 'c', args: [ number, number, number, number, number, number ] 
+// }
 // type PathSegmentType =  LineSegmentType | CurveSegmentType;
-type PathSegmentType = {
+export type PathSegmentType = {
 	command: 'c' | 'l',
 	args: number[]
 }
-type PathType = PathSegmentType[];
-type EdgesType = [ PathType, PathType, PathType, PathType ];
-type PieceType = {
+export type PathType = PathSegmentType[];
+export type EdgesType = [ PathType, PathType, PathType, PathType ];
+export type PieceType = {
 	x: number,
 	y: number,
 	moveArgs: MoveType
 	edges: EdgesType;
 }
-type PiecesType = {
+export type PiecesType = {
 	piecesX: number,
 	piecesY: number,
 	pieces: PieceType[];
 }
-type JigsawConfig = {
+export type JigsawConfig = {
 	piecesX?: number,
 	piecesY?: number,
 	seed?: string
@@ -149,7 +149,7 @@ function randomPoint({ random, radius = 0.05 }: { random: () => number, radius: 
 /**
  * Flip the curve handle before the dimple between horizontal and vertical orientation
  * Assumes 4 curve commands: curve -> half dimple -> half dimple -> curve */
-export function rotateCurveStart([p1, p2, p3, p4]: [ PathSegmentType, PathSegmentType, PathSegmentType, PathSegmentType ]) {
+export function rotateCurveStart([p1, p2, p3, p4]: PathSegmentType[]) {
 	const [rp1, rp2] = rotateCurvePortion({ commands: [p1, p2] });
 	return [rp1, rp2, p3, p4];
 }
@@ -157,7 +157,7 @@ export function rotateCurveStart([p1, p2, p3, p4]: [ PathSegmentType, PathSegmen
 /**
  * Flip the curve handle before the dimple between horizontal and vertical orientation
  * Assumes 4 curve commands: curve -> half dimple -> half dimple -> curve */
-export function rotateCurveEnd([p1, p2, p3, p4] : [ PathSegmentType, PathSegmentType, PathSegmentType, PathSegmentType ]) {
+export function rotateCurveEnd([p1, p2, p3, p4] : PathSegmentType[]) {
 	const [rp3, rp4] = rotateCurvePortion({ commands: [p3, p4], isEnd: true });
 	return [p1, p2, rp3, rp4];
 }

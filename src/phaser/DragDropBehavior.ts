@@ -67,7 +67,7 @@ export class DragDropBehavior {
 		if (!this.dragTarget) return;
 
 		this.dragTarget.dragRelease(pointer);
-		this.dragTarget = null;
+		this.dragTarget = undefined;
 	}
 
 	onGameOut() {

@@ -1,7 +1,8 @@
-import { curveOf, rotateCurveStart, rotateCurveEnd } from './jigsaw-cutout';
+import { curveOf, rotateCurveStart, rotateCurveEnd, PathSegmentType } from './jigsaw-cutout';
+import { test, expect } from 'vitest';
 
 /* Has curve handles in vertical orientation on both sides of the dimple */
-const EDGE_VERTICAL_VERTICAL = [
+const EDGE_VERTICAL_VERTICAL: PathSegmentType[] = [
 	curveOf(0.2, 0.1, 0.4, 0.075, 0.4, 0),
 	curveOf(0, -0.075, -0.1, -0.15, 0.1, -0.15),
 	curveOf(0.2, 0, 0.1, 0.075, 0.1, 0.15),
@@ -34,13 +35,9 @@ const EDGE_VERTICAL_HORIZONTAL = [
 
 
 test('rotateCurveStart turns vertical curve handle to horizontal', () => {
-	expect(rotateCurveStart(EDGE_VERTICAL_VERTICAL)).toBeSame(EDGE_HORIZONTAL_VERTICAL);
+	expect(rotateCurveStart(EDGE_VERTICAL_VERTICAL)).toEqual(EDGE_HORIZONTAL_VERTICAL);
 });
 
 test('rotateCurveEnd turns vertical curve handle to horizontal', () => {
-	expect(rotateCurveEnd(EDGE_VERTICAL_VERTICAL)).toBeSame(EDGE_VERTICAL_HORIZONTAL);
-});
-
-test('can do the impossible', () => {
-	expect('five').toBe(4);
+	expect(rotateCurveEnd(EDGE_VERTICAL_VERTICAL)).toEqual(EDGE_VERTICAL_HORIZONTAL);
 });
