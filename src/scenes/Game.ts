@@ -3,7 +3,9 @@ import { notNull } from '../util/assert.ts';
 import { IslandMap } from '../islandMap.js';
 import paletteUrl from '../assets/island-palette.png?url';
 import { JigsawCutout } from '../board/jigsaw-cutout.ts';
-import { Point } from '../util/geom/point.ts';
+import { IPoint, Point } from '../util/geom/point.ts';
+import { PuzzlePiece } from '../sprites/PuzzlePiece.ts';
+import { DragDropBehavior } from '../phaser/DragDropBehavior.ts';
 
 export default class extends Phaser.Scene {
 
@@ -14,12 +16,15 @@ export default class extends Phaser.Scene {
 	init() {}
 	preload() {}
 	
+	puzzlePieces: PuzzlePiece[] = [];
+
 	async createImages() {
 		const width = 800;
 		const height = 800;
 		const mapSize = new Point(width, height);
 		const piecesX = 8;
 		const piecesY = 8;
+		const puzzleSize = new Point(piecesX, piecesY);
 
 		const islandMap = new IslandMap({ width, height, paletteUrl });
 		const imageData = await islandMap.generate();
@@ -82,13 +87,11 @@ export default class extends Phaser.Scene {
 
 			canvasTexture.refresh(); // only needed in case we're on WebGL...
 
-			// by default, Origin is 0.5, meaning that the center of the puzzle will be drawn at screen coordinate 0,0.
-			const sprite = this.add.sprite(
-				0, 0, 
-				`piece-${piece.x}-${piece.y}`).setOrigin(0);
-			// sprite.setAngle(Math.random() * 360);
-		}
+			const puzzlePiece = new PuzzlePiece(this, 0, 0, { gridPos: piece, texSize: mapSize, gridSize: puzzleSize });
+			this.add.existing(puzzlePiece);
 
+			this.puzzlePieces.push(puzzlePiece);
+		}
 
 		this.add.text(100, 100, 'Phaser 3 - TypeScript - Vite ', {
 			font: '64px Bangers',
@@ -99,5 +102,11 @@ export default class extends Phaser.Scene {
 	create() {
 		// async delegate...
 		this.createImages();
+
+		const dragDropBehavior = new DragDropBehavior();
+		
+		dragDropBehavior.findDragTarget = (pointer: IPoint) => this.puzzlePieces.find(p => p.contains(pointer));
+		dragDropBehavior.apply(this);
+
 	}
 }
