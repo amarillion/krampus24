@@ -1,5 +1,6 @@
 import { Draggable } from "../phaser/DragDropBehavior";
 import { IPoint, Point } from "../util/geom/point";
+import { roundToMultiple } from "../util/math";
 
 export type PuzzlePieceConfig = {
 	texSize: IPoint, // size of puzzle texture
@@ -32,14 +33,12 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 	dragOrigin: Point = new Point(0, 0);
 
 	dragRelease(pointer: IPoint) {
+		const SNAP_GRID = 40
+
 		const target = Point.minus(pointer, this.dragDelta);
 		
-		// round to neatest unit of 20 pixels
-		const SNAP_GRID = 40
-		target.x += SNAP_GRID / 2;
-		target.y += SNAP_GRID / 2;
-		target.x -= target.x % SNAP_GRID;
-		target.y -= target.y % SNAP_GRID;
+		target.x = roundToMultiple(target.x, SNAP_GRID);
+		target.y = roundToMultiple(target.y, SNAP_GRID);
 		
 		const scene = this.scene;
 		scene.tweens.add({
