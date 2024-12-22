@@ -21,6 +21,7 @@
 	},
 	"dependencies": {
 		"phaser": "3.87.0",
+		"qrcode": "1.5.4",
 		"simplex-noise": "4.0.3",
 		"webfontloader": "1.6.28"
 	}
