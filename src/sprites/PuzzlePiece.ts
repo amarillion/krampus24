@@ -2,8 +2,11 @@ import { Draggable } from "../phaser/DragDropBehavior";
 import { IPoint, Point } from "../util/geom/point";
 import { roundToMultiple } from "../util/math";
 
+export const SNAP_GRID = 20;
+
 export type PuzzlePieceConfig = {
 	texSize: IPoint, // size of puzzle texture
+	margin: IPoint, // target position in pixel coordinates
 	gridSize: IPoint, // size of puzzle grid
 	gridPos: IPoint, // position within the puzzle grid
 }
@@ -33,12 +36,10 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 	dragOrigin: Point = new Point(0, 0);
 
 	dragRelease(pointer: IPoint) {
-		const SNAP_GRID = 40
-
-		const target = Point.minus(pointer, this.dragDelta);
-		
+		let target = Point.minus(pointer, this.dragDelta).minus(this.config.margin);
 		target.x = roundToMultiple(target.x, SNAP_GRID);
 		target.y = roundToMultiple(target.y, SNAP_GRID);
+		target = target.plus(this.config.margin);
 		
 		const scene = this.scene;
 		scene.tweens.add({
@@ -64,7 +65,7 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 
 	isCorrectPosition() {
 		// with full-size textures, correct position for all pieces is 0,0
-		return (this.x === 0 && this.y === 0);
+		return (this.x === this.config.margin.x && this.y === this.config.margin.y);
 	}
 
 	dragStart(pointer: IPoint) {
