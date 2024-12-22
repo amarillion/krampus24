@@ -8,13 +8,6 @@ import { PuzzlePiece } from '../sprites/PuzzlePiece.ts';
 import { DragDropBehavior } from '../phaser/DragDropBehavior.ts';
 import { randomInt } from '../util/random.ts';
 
-const width = 800;
-const height = 800;
-const piecesX = 4;
-const piecesY = 4;
-const mapSize = new Point(width, height);
-const puzzleSize = new Point(piecesX, piecesY);
-
 export default class extends Phaser.Scene {
 
 	constructor() {
@@ -28,10 +21,13 @@ export default class extends Phaser.Scene {
 
 	async createImages() {
 
-		const islandMap = new IslandMap({ width, height, paletteUrl });
+		const texSize = this.textureSize;
+		const gridSize = this.gridSize;
+
+		const islandMap = new IslandMap({ width: texSize.x, height: texSize.y, paletteUrl });
 		const imageData = await islandMap.generate();
 
-		const clipOutData = JigsawCutout({ piecesX, piecesY, seed: 'cherry' });
+		const clipOutData = JigsawCutout({ piecesX: gridSize.x, piecesY: gridSize.y, seed: 'cherry' });
 
 		// generate full map.
 		{
@@ -50,7 +46,7 @@ export default class extends Phaser.Scene {
 		const bmp = await createImageBitmap(imageData);
 
 		for (const piece of clipOutData.pieces) {
-			const canvasTexture = notNull(this.textures.createCanvas(`piece-${piece.x}-${piece.y}`, width, height));
+			const canvasTexture = notNull(this.textures.createCanvas(`piece-${piece.x}-${piece.y}`, texSize.x, texSize.y));
 			const canvas = canvasTexture.getSourceImage() as HTMLCanvasElement;
 			const context = notNull(canvas.getContext('2d'));
 			
@@ -61,19 +57,18 @@ export default class extends Phaser.Scene {
 
 			context.beginPath();
 
-			let pos = new Point(piece.moveArgs[0] * width, 
-				piece.moveArgs[1] * height);
+			let pos = new Point(piece.moveArgs[0], piece.moveArgs[1]).times(texSize);
 			context.moveTo(pos.x, pos.y);
 			for (const edge of piece.edges) {
 				for (const segment of edge) {
 					if (segment.command === 'l') {
-						pos = pos.plus(new Point(segment.args[0], segment.args[1]).times(mapSize));
+						pos = pos.plus(new Point(segment.args[0], segment.args[1]).times(texSize));
 						context.lineTo(pos.x, pos.y);
 					}
 					else if (segment.command === 'c') {
-						const way1 = pos.plus(new Point(segment.args[0], segment.args[1]).times(mapSize));
-						const way2 = pos.plus(new Point(segment.args[2], segment.args[3]).times(mapSize));
-						pos = pos.plus(new Point(segment.args[4], segment.args[5]).times(mapSize));
+						const way1 = pos.plus(new Point(segment.args[0], segment.args[1]).times(texSize));
+						const way2 = pos.plus(new Point(segment.args[2], segment.args[3]).times(texSize));
+						pos = pos.plus(new Point(segment.args[4], segment.args[5]).times(texSize));
 						context.bezierCurveTo(
 							way1.x, way1.y,
 							way2.x, way2.y,
@@ -89,7 +84,7 @@ export default class extends Phaser.Scene {
 
 			canvasTexture.refresh(); // only needed in case we're on WebGL...
 
-			const puzzlePiece = new PuzzlePiece(this, 0, 0, { gridPos: piece, texSize: mapSize, gridSize: puzzleSize });
+			const puzzlePiece = new PuzzlePiece(this, 0, 0, { gridPos: piece, texSize, gridSize });
 			this.add.existing(puzzlePiece);
 
 			this.puzzlePieces.push(puzzlePiece);
@@ -119,11 +114,11 @@ export default class extends Phaser.Scene {
 
 	scatterPuzzlePieces() {
 		// TODO: Point.divide
-		const pieceSize = new Point(mapSize.x / puzzleSize.x, mapSize.y / puzzleSize.y);
+		const pieceSize = new Point(this.textureSize.x / this.gridSize.x, this.textureSize.y / this.gridSize.y);
 		for (const piece of this.puzzlePieces) {
 			
-			let x = randomInt(width - pieceSize.x);
-			let y = randomInt(height - pieceSize.y);
+			let x = randomInt(this.textureSize.x - pieceSize.x);
+			let y = randomInt(this.textureSize.y - pieceSize.y);
 			
 			// correction because each piece is actually a full-size texture.
 			x -= (piece.config.gridPos.x * pieceSize.x);
@@ -135,9 +130,24 @@ export default class extends Phaser.Scene {
 		}
 	}
 
+	private textureSize = new Point(0, 0);
+	private gridSize = new Point(0, 0);
+
 	async create() {
 		// async delegate...
+
+		const { width, height } = this.sys.game.canvas;
+		
+		const targetPieceSize = 200;
+		this.gridSize = new Point(
+			Math.max(2, Math.floor(width / targetPieceSize)), 
+			Math.max(2, Math.floor(height / targetPieceSize))
+		);
+
+		this.textureSize = Point.scale(this.gridSize, targetPieceSize);
+
 		await this.createImages();
+
 		this.scatterPuzzlePieces();
 
 		const dragDropBehavior = new DragDropBehavior();
