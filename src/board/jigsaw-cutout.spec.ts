@@ -33,7 +33,6 @@ const EDGE_VERTICAL_HORIZONTAL = [
 	EDGE_HORIZONTAL_HORIZONTAL[3],
 ];
 
-
 test('rotateCurveStart turns vertical curve handle to horizontal', () => {
 	expect(rotateCurveStart(EDGE_VERTICAL_VERTICAL)).toEqual(EDGE_HORIZONTAL_VERTICAL);
 });

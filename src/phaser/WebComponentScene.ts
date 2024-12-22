@@ -18,19 +18,19 @@ export function registerEventListener(
 	};
 }
 
-let key : string;
+let _key: string;
 function registerOnce(componentClass: CustomElementConstructor) {
-	if (!key) {
+	if (!_key) {
 		// give the key random scope bits
-		key = `scene-component-${randomInt(Number.MAX_SAFE_INTEGER)}`; 
-		customElements.define(key, componentClass);
+		_key = `scene-component-${randomInt(Number.MAX_SAFE_INTEGER)}`;
+		customElements.define(_key, componentClass);
 	}
-	return key;
+	return _key;
 }
 
 export class WebComponentScene extends Phaser.Scene {
 
-	constructor({ key, next } : { key: string, next: string }) {
+	constructor({ key, next }: { key: string, next: string }) {
 		super({ key });
 		this.next = next;
 	}

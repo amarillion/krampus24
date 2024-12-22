@@ -13,11 +13,11 @@ export async function getImageUrl() {
 	const canvas = document.createElement('canvas');
 	const ctx = canvas.getContext('2d');
 	canvas.width = (await imageData).width;
-	canvas.height = (await imageData).height
+	canvas.height = (await imageData).height;
 	assert(ctx);
 	ctx.putImageData(await imageData, 0, 0);
 
-	const promise = new Promise<Blob|null>((resolve) => {
+	const promise = new Promise<Blob | null>(resolve => {
 		canvas.toBlob(resolve);
 	});
 

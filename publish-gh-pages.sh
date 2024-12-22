@@ -1,7 +1,9 @@
 #!/bin/bash -e
 
 # First build the project, this brings the dist folder up-to-date
-nmp run build
+npm run lint
+npm test -- run
+npm run build
 
 # test using `http-server .
 #  open http://localhost:8080/dist`

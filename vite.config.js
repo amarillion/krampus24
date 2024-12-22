@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite';
 
 export default defineConfig({
 	build: {
@@ -6,10 +6,10 @@ export default defineConfig({
 			output: {
 				/* Package phaser in a chunk named phaser */
 				manualChunks: {
-					phaser: ['phaser'],
+					phaser: [ 'phaser' ],
 				},
 			},
 		},
 	},
-	base: "./" // Use relative paths in index.html, makes our app relocatable.
+	base: './', // Use relative paths in index.html, makes our app relocatable.
 });

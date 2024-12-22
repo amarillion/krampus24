@@ -24,9 +24,9 @@ Create an island map
  */
 
 export type ConfigType = {
-	width: number;
-	height: number;
-	paletteUrl: string;
+	width: number,
+	height: number,
+	paletteUrl: string,
 };
 
 export class IslandMap {
@@ -50,8 +50,8 @@ export class IslandMap {
 		img.src = this.config.paletteUrl;
 		return new Promise<ImageData>((resolve, reject) => {
 			img.onload = () => {
-				const canvas = document.createElement('canvas');  
-				const context = canvas.getContext("2d");
+				const canvas = document.createElement('canvas');
+				const context = canvas.getContext('2d');
 				if (context) {
 					context.drawImage(img, 0, 0, img.width, img.height);
 					const imgData = context.getImageData(0, 0, img.width, img.height);
@@ -61,11 +61,11 @@ export class IslandMap {
 					reject(`Can't create context`);
 				}
 			};
-		});	
+		});
 	}
 
 	// return value between 0 and 1.
-	getHeight(x: number, y : number) {
+	getHeight(x: number, y: number) {
 		const { width, height } = this.config;
 
 		// two levels of fractal noise
@@ -73,11 +73,11 @@ export class IslandMap {
 		const val1 = this.noise2D(x / 200, y / 200);
 		const val0 = this.noise2D(x / 100, y / 100);
 
-		let h = 0.5 + 0.5 * (val2 + 0.5 * val1 * 0.3 + val0 * 0.2);
+		const h = 0.5 + 0.5 * (val2 + 0.5 * val1 * 0.3 + val0 * 0.2);
 
 		// distance to center
 		const delta = new Point(width / 2, height / 2).minus({ x, y });
-		let dist = delta.length() / Point.length({x: width / 2, y: height / 2 });
+		const dist = delta.length() / Point.length({ x: width / 2, y: height / 2 });
 		
 		return clamp(h - dist, 0.0, 1.0);
 	}
@@ -94,7 +94,7 @@ export class IslandMap {
 
 		for (const { x, y } of pointRange(width, height)) {
 
-			let idx = ((y * width) + x) * 4;
+			const idx = ((y * width) + x) * 4;
 
 			const h = this.getHeight(x, y);
 
@@ -102,10 +102,10 @@ export class IslandMap {
 			let light = 0.85;
 			// if (h > 0.148) {
 			if (h > 0) {
-				let dx = h - this.getHeight(x - 1, y);
-				let dy = h - this.getHeight(x, y - 1);
+				const dx = h - this.getHeight(x - 1, y);
+				const dy = h - this.getHeight(x, y - 1);
 
-				const angle = Vec3.dot_product(Vec3.normalize({ x: dx, y: dy, z: 0.01 }), this.lightSource);
+				const angle = Vec3.dotProduct(Vec3.normalize({ x: dx, y: dy, z: 0.01 }), this.lightSource);
 				light = Math.cos(angle);
 			}
 

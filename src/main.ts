@@ -11,15 +11,15 @@ const gameConfig = {
 	disableContextMenu: true,
 	backgroundColor: '#ffffbb',
 	fps: { target: 60 },
-	scale: { mode: Phaser.Scale.RESIZE, },
+	scale: { mode: Phaser.Scale.RESIZE },
 	localStorageName: 'krampus64-amarillion',
-	scene: [ 
-		BootScene, 
-		SplashScene, 
-		GameScene, 
-		new WebComponentScene({ key: 'TitleScreen', next: 'GameScene' }) 
-	]
-}
+	scene: [
+		BootScene,
+		SplashScene,
+		GameScene,
+		new WebComponentScene({ key: 'TitleScreen', next: 'GameScene' }),
+	],
+};
 
 class Game extends Phaser.Game {
 	constructor() {

@@ -1,21 +1,11 @@
-/*
-
-
-How to use
-
-
-Apply to the current Scene
-
-*/
-
-import { IPoint } from "../util/geom/point.js";
+import { IPoint } from '../util/geom/point.js';
 
 export interface Draggable {
-	dragRelease: ( pointer: IPoint ) => void,
-	dragStart: ( pointer: IPoint ) => void,
+	dragRelease: (pointer: IPoint) => void,
+	dragStart: (pointer: IPoint) => void,
 	/** Moving the mouse. If mouse moved outside of screen, x and y are negative.  */
-	dragMove: ( pointer: IPoint ) => void,
-	dragCancel: ( pointer: IPoint ) => void,
+	dragMove: (pointer: IPoint) => void,
+	dragCancel: (pointer: IPoint) => void,
 }
 
 export class DragDropBehavior {
@@ -33,7 +23,7 @@ export class DragDropBehavior {
 		scene.input.on('gameout', () => this.onGameOut());
 	}
 
-	dragTarget : Draggable | undefined = undefined;
+	dragTarget: Draggable | undefined = undefined;
 
 	onDown(pointer: Phaser.Input.Pointer) {
 		if (this.uiBlocked()) { return; }
@@ -76,8 +66,7 @@ export class DragDropBehavior {
 			
 			// use negative coordinates to indicate out of screen
 			// TODO -> something better?
-			this.dragTarget.dragMove({x: -1, y: -1});
+			this.dragTarget.dragMove({ x: -1, y: -1 });
 		}
 	}
-
 }

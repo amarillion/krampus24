@@ -6,7 +6,7 @@ export function always<T>(value: T) {
 /** Used as https://ramdajs.com/docs/#findIndex */
 export function findIndex<T>(predicate: (t: T) => boolean, array: T[]) {
 	if (!array.length) { return -1; }
-	for(let index = 0; index < array.length; index++) {
+	for (let index = 0; index < array.length; index++) {
 		if (predicate(array[index])) {
 			return index;
 		}
@@ -25,6 +25,7 @@ export function indexOf<T>(value: T, array: T[]) {
 }
 
 /** Used as https://ramdajs.com/docs/#pipe */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export function pipe(firstFn: Function, ...fns: Function[]) {
 	return (...args: unknown[]) => fns.reduce((acc, fn) => fn(acc), firstFn(...args));
 }

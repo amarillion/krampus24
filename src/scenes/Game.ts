@@ -73,7 +73,7 @@ export default class extends Phaser.Scene {
 						context.bezierCurveTo(
 							way1.x, way1.y,
 							way2.x, way2.y,
-							pos.x, pos.y)
+							pos.x, pos.y);
 					}
 				}
 			}
@@ -121,7 +121,7 @@ export default class extends Phaser.Scene {
 				font: '64px Bangers',
 				color: '#7744ff',
 			});
-				// TODO: particle effect
+			// TODO: particle effect
 			this.playSample('puzzle-complete');
 
 			setTimeout(() => {
@@ -157,7 +157,7 @@ export default class extends Phaser.Scene {
 	private targetNumPieces = 10;
 
 	create() {
-		this.initLevel()
+		this.initLevel();
 	}
 
 	async initLevel() {
@@ -171,10 +171,10 @@ export default class extends Phaser.Scene {
 		do {
 			targetPieceSize -= SNAP_GRID;
 			this.gridSize = new Point(
-				Math.max(2, Math.floor(canvasSize.x / targetPieceSize - 0.5)), 
+				Math.max(2, Math.floor(canvasSize.x / targetPieceSize - 0.5)),
 				Math.max(2, Math.floor(canvasSize.y / targetPieceSize - 0.5))
 			);
-		} while (this.gridSize.x * this.gridSize.y < this.targetNumPieces)
+		} while (this.gridSize.x * this.gridSize.y < this.targetNumPieces);
 		
 		this.textureSize = Point.scale(this.gridSize, targetPieceSize);
 		this.margin = canvasSize.minus(this.textureSize).scale(0.5);
@@ -189,7 +189,7 @@ export default class extends Phaser.Scene {
 			// take depth into account when finding drag target
 			this.puzzlePieces.sort((a, b) => b.depth - a.depth);
 			return this.puzzlePieces.find(p => p.contains(pointer));
-		}
+		};
 		dragDropBehavior.apply(this);
 	}
 }

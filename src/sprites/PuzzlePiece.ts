@@ -1,6 +1,6 @@
-import { Draggable } from "../phaser/DragDropBehavior";
-import { IPoint, Point } from "../util/geom/point";
-import { roundToMultiple } from "../util/math";
+import { Draggable } from '../phaser/DragDropBehavior';
+import { IPoint, Point } from '../util/geom/point';
+import { roundToMultiple } from '../util/math';
 
 export const SNAP_GRID = 20;
 
@@ -9,7 +9,7 @@ export type PuzzlePieceConfig = {
 	margin: IPoint, // target position in pixel coordinates
 	gridSize: IPoint, // size of puzzle grid
 	gridPos: IPoint, // position within the puzzle grid
-}
+};
 
 export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 
@@ -18,7 +18,7 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 	pieceOrigin: Point;
 	originalDepth: number;
 
-	constructor(scene: Phaser.Scene, x: number, y: number, config : PuzzlePieceConfig) {
+	constructor(scene: Phaser.Scene, x: number, y: number, config: PuzzlePieceConfig) {
 		const { gridPos, texSize, gridSize } = config;
 		super(scene, x, y, `piece-${gridPos.x}-${gridPos.y}`);
 		this.config = { ...config };
@@ -29,7 +29,7 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 		// because we're working with a texture that is the same size as the entire puzzle, this won't do.
 		this.setOrigin(0);
 		this.originalDepth = Math.random(); // depth value between 0 and 1. 0 is puzzle layer, 1 is drag layer.
-		this.setDepth(this.originalDepth); 
+		this.setDepth(this.originalDepth);
 	}
 
 	dragDelta: Point = new Point(0, 0);
@@ -51,12 +51,12 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 				this.setTint();
 				if (this.isCorrectPosition()) {
 					this.emit('piece-in-place', this);
-					this.setDepth(0); // below all the incorrect pieces 
+					this.setDepth(0); // below all the incorrect pieces
 				}
 				else {
 					this.setDepth(this.originalDepth); // back in the puzzle layer
 				}
-			}
+			},
 		});
 
 		// TODO: listen for event
