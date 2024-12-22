@@ -12,6 +12,7 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 	config: PuzzlePieceConfig;
 	pieceSize: Point;
 	pieceOrigin: Point;
+	originalDepth: number;
 
 	constructor(scene: Phaser.Scene, x: number, y: number, config : PuzzlePieceConfig) {
 		const { gridPos, texSize, gridSize } = config;
@@ -23,6 +24,8 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 		// by default, Origin is 0.5, meaning that the center of the puzzle will be drawn at screen coordinate 0,0.
 		// because we're working with a texture that is the same size as the entire puzzle, this won't do.
 		this.setOrigin(0);
+		this.originalDepth = Math.random(); // depth value between 0 and 1. 0 is puzzle layer, 1 is drag layer.
+		this.setDepth(this.originalDepth); 
 	}
 
 	dragDelta: Point = new Point(0, 0);
@@ -43,10 +46,13 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 			x: target.x,
 			y: target.y,
 			onComplete: () => {
-				this.setDepth(0); // back in the puzzle layer
 				this.setTint();
 				if (this.isCorrectPosition()) {
 					this.emit('piece-in-place', this);
+					this.setDepth(0); // below all the incorrect pieces 
+				}
+				else {
+					this.setDepth(this.originalDepth); // back in the puzzle layer
 				}
 			}
 		});

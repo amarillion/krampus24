@@ -142,7 +142,11 @@ export default class extends Phaser.Scene {
 
 		const dragDropBehavior = new DragDropBehavior();
 		
-		dragDropBehavior.findDragTarget = (pointer: IPoint) => this.puzzlePieces.find(p => p.contains(pointer));
+		dragDropBehavior.findDragTarget = (pointer: IPoint) => {
+			// take depth into account when finding drag target
+			this.puzzlePieces.sort((a, b) => b.depth - a.depth);
+			return this.puzzlePieces.find(p => p.contains(pointer));
+		}
 		dragDropBehavior.apply(this);
 
 	}
