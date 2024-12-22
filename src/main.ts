@@ -8,11 +8,17 @@ import { WebComponentScene } from './phaser/WebComponentScene.js';
 
 const gameConfig = {
 	type: Phaser.AUTO,
-	parent: 'content',
-	width: 1280,
-	height: 800,
-	localStorageName: 'phaseres6webpack',
-	scene: [ BootScene, SplashScene, GameScene, new WebComponentScene({ key: 'TitleScreen', next: 'GameScene' }) ]
+	disableContextMenu: true,
+	backgroundColor: '#ffffbb',
+	fps: { target: 60 },
+	scale: { mode: Phaser.Scale.RESIZE, },
+	localStorageName: 'krampus64-amarillion',
+	scene: [ 
+		BootScene, 
+		SplashScene, 
+		GameScene, 
+		new WebComponentScene({ key: 'TitleScreen', next: 'GameScene' }) 
+	]
 }
 
 class Game extends Phaser.Game {
