@@ -35,7 +35,9 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 		const target = Point.minus(pointer, this.dragDelta);
 		
 		// round to neatest unit of 20 pixels
-		const SNAP_GRID = 20
+		const SNAP_GRID = 40
+		target.x += SNAP_GRID / 2;
+		target.y += SNAP_GRID / 2;
 		target.x -= target.x % SNAP_GRID;
 		target.y -= target.y % SNAP_GRID;
 		
