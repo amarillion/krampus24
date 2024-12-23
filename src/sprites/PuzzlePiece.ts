@@ -9,6 +9,7 @@ export type PuzzlePieceConfig = {
 	margin: IPoint, // target position in pixel coordinates
 	gridSize: IPoint, // size of puzzle grid
 	gridPos: IPoint, // position within the puzzle grid
+	maskImage: Phaser.GameObjects.Image,
 };
 
 export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
@@ -17,10 +18,15 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 	pieceSize: Point;
 	pieceOrigin: Point;
 	originalDepth: number;
+	maskImage: Phaser.GameObjects.Image;
 
 	constructor(scene: Phaser.Scene, x: number, y: number, config: PuzzlePieceConfig) {
-		const { gridPos, texSize, gridSize } = config;
-		super(scene, x, y, `piece-${gridPos.x}-${gridPos.y}`);
+		const { gridPos, texSize, gridSize, maskImage } = config;
+		super(scene, x, y, 'island');
+
+		const mask = maskImage.createBitmapMask();
+		this.setMask(mask);
+		this.maskImage = maskImage;
 		this.config = { ...config };
 		this.pieceSize = new Point(texSize.x / gridSize.x, texSize.y / gridSize.y);
 		this.pieceOrigin = this.pieceSize.times(gridPos);
@@ -35,6 +41,13 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 	dragDelta: Point = new Point(0, 0);
 	dragOrigin: Point = new Point(0, 0);
 
+	override setPosition(x?: number, y?: number, z?: number, w?: number) {
+		console.log ('Piece set to ', { x, y });
+		super.setPosition(x, y, z, w);
+		this.maskImage?.setPosition(x, y); // always move mask in line with self.
+		return this;
+	}
+
 	dragRelease(pointer: IPoint) {
 		let target = Point.minus(pointer, this.dragDelta).minus(this.config.margin);
 		target.x = roundToMultiple(target.x, SNAP_GRID);
@@ -42,8 +55,9 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 		target = target.plus(this.config.margin);
 		
 		const scene = this.scene;
+		
 		scene.tweens.add({
-			targets: [ this ],
+			targets: [ this, this.maskImage ],
 			duration: 300,
 			x: target.x,
 			y: target.y,
@@ -85,7 +99,7 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 	dragCancel(/* pointer: IPoint */) {
 		const scene = this.scene;
 		scene.tweens.add({
-			targets: [ this ],
+			targets: [ this, this.maskImage ],
 			duration: 200,
 			x: this.dragOrigin.x,
 			y: this.dragOrigin.y,

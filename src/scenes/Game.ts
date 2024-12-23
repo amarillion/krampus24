@@ -5,7 +5,6 @@ import { DragDropBehavior } from '../phaser/DragDropBehavior.ts';
 import { randomInt } from '../util/random.ts';
 import { roundToMultiple } from '../util/math.ts';
 import { PuzzleGraphics } from '../PuzzleGraphics.ts';
-import { pointRange } from '../util/geom/pointRange.ts';
 
 export default class extends Phaser.Scene {
 
@@ -22,13 +21,15 @@ export default class extends Phaser.Scene {
 
 	async createPuzzlePieces() {
 		this.puzzle = new PuzzleGraphics(this, this.textureSize, this.gridSize);
-		await this.puzzle.generatePieceTextures();
+		
+		await this.puzzle.generatePuzzleTexture();
+		this.puzzle.generateMasks();
 
 		const texSize = this.textureSize;
 		const gridSize = this.gridSize;
 
-		for (const piece of pointRange(gridSize.x, gridSize.y)) {
-			const puzzlePiece = new PuzzlePiece(this, 0, 0, { gridPos: piece, texSize, gridSize, margin: this.margin });
+		for (const piece of this.puzzle.pieces) {
+			const puzzlePiece = new PuzzlePiece(this, 0, 0, { gridPos: piece, texSize, gridSize, margin: this.margin, maskImage: piece.maskImage });
 			this.add.existing(puzzlePiece);
 
 			this.puzzlePieces.push(puzzlePiece);
@@ -51,6 +52,7 @@ export default class extends Phaser.Scene {
 		this.textures.remove('island');
 		for (const piece of this.puzzlePieces) {
 			this.textures.remove(`piece-${piece.config.gridPos.x}-${piece.config.gridPos.y}`);
+			this.textures.remove(`mask-${piece.config.gridPos.x}-${piece.config.gridPos.y}`);
 		}
 
 		this.puzzlePieces = [];
