@@ -5,6 +5,8 @@ import { DragDropBehavior } from '../phaser/DragDropBehavior.ts';
 import { randomInt } from '../util/random.ts';
 import { roundToMultiple } from '../util/math.ts';
 import { PuzzleGraphics } from '../PuzzleGraphics.ts';
+import { notNull } from '../util/assert.ts';
+import { IslandScene } from '../IslandScene.ts';
 
 export default class extends Phaser.Scene {
 
@@ -18,6 +20,8 @@ export default class extends Phaser.Scene {
 	puzzlePieces: PuzzlePiece[] = [];
 
 	puzzle: PuzzleGraphics | undefined = undefined;
+
+	private texture: Phaser.Textures.DynamicTexture | undefined = undefined;
 
 	async createPuzzlePieces() {
 		this.puzzle = new PuzzleGraphics(this, this.textureSize, this.gridSize);
@@ -50,6 +54,7 @@ export default class extends Phaser.Scene {
 		
 		// TODO: move to PuzzleGraphics:
 		this.textures.remove('island');
+		this.textures.remove('shaderTexture');
 		for (const piece of this.puzzlePieces) {
 			this.textures.remove(`piece-${piece.config.gridPos.x}-${piece.config.gridPos.y}`);
 			this.textures.remove(`mask-${piece.config.gridPos.x}-${piece.config.gridPos.y}`);
@@ -57,6 +62,7 @@ export default class extends Phaser.Scene {
 
 		this.puzzlePieces = [];
 		// TODO: remove dragDrop listeners?
+		this.islandScene = undefined;
 	}
 
 	playSample(sfxId: string) {
@@ -102,7 +108,7 @@ export default class extends Phaser.Scene {
 	private margin = new Point(0, 0);
 
 	// determines level...
-	private targetNumPieces = 10;
+	private targetNumPieces = 4;
 
 	create() {
 		this.initLevel();
@@ -115,7 +121,6 @@ export default class extends Phaser.Scene {
 		const canvasSize = new Point(width, height);
 
 		let targetPieceSize = roundToMultiple(320, SNAP_GRID);
-		
 		do {
 			targetPieceSize -= SNAP_GRID;
 			this.gridSize = new Point(
@@ -126,6 +131,8 @@ export default class extends Phaser.Scene {
 		
 		this.textureSize = Point.scale(this.gridSize, targetPieceSize);
 		this.margin = canvasSize.minus(this.textureSize).scale(0.5);
+
+		this.texture = notNull(this.textures.addDynamicTexture('shaderTexture', this.textureSize.x, this.textureSize.y)).setIsSpriteTexture(false);
 		
 		this.add.rectangle(this.margin.x, this.margin.y, this.textureSize.x, this.textureSize.y, 0xAAAAAA).setOrigin(0).setDepth(-1);
 		await this.createPuzzlePieces();
@@ -139,5 +146,14 @@ export default class extends Phaser.Scene {
 			return this.puzzlePieces.find(p => p.contains(pointer));
 		};
 		dragDropBehavior.apply(this);
+
+		this.islandScene = new IslandScene(this, this.texture);
+		this.islandScene.init();
+	}
+
+	islandScene: IslandScene | undefined = undefined;
+
+	update() {
+		this.islandScene?.update();
 	}
 }
