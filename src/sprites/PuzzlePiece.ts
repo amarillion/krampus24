@@ -22,7 +22,7 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 
 	constructor(scene: Phaser.Scene, x: number, y: number, config: PuzzlePieceConfig) {
 		const { gridPos, texSize, gridSize, maskImage } = config;
-		super(scene, x, y, 'shaderTexture');
+		super(scene, x, y, 'island');
 
 		const mask = maskImage.createBitmapMask();
 		this.setMask(mask);
@@ -42,6 +42,7 @@ export class PuzzlePiece extends Phaser.GameObjects.Image implements Draggable {
 	dragOrigin: Point = new Point(0, 0);
 
 	override setPosition(x?: number, y?: number, z?: number, w?: number) {
+		console.log ('Piece set to ', { x, y });
 		super.setPosition(x, y, z, w);
 		this.maskImage?.setPosition(x, y); // always move mask in line with self.
 		return this;

@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import WebFont from 'webfontloader';
-import mushroomUrl from '../assets/mushroom2.png?url';
 
 export default class extends Phaser.Scene {
 	private fontsReady = false;
@@ -16,7 +15,6 @@ export default class extends Phaser.Scene {
 
 		this.load.image('loaderBg', './images/loader-bg.png');
 		this.load.image('loaderBar', './images/loader-bar.png');
-		this.load.image('mushroom', mushroomUrl);
 
 		WebFont.load({
 			google: {
