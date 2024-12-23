@@ -22,7 +22,7 @@ export default class extends Phaser.Scene {
 
 	async createPuzzlePieces() {
 		this.puzzle = new PuzzleGraphics(this, this.textureSize, this.gridSize);
-		await this.puzzle.generateTextures();
+		await this.puzzle.generatePieceTextures();
 
 		const texSize = this.textureSize;
 		const gridSize = this.gridSize;

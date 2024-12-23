@@ -16,17 +16,12 @@ export class PuzzleGraphics {
 		this.textureSize = textureSize;
 		this.gridSize = gridSize;
 	}
-	
-	// generate island graphics texture
-	async generateTextures() {
 
+	async generatePuzzleTexture() {
 		const texSize = this.textureSize;
-		const gridSize = this.gridSize;
 
 		const islandMap = new IslandMap({ width: texSize.x, height: texSize.y, paletteUrl });
 		const imageData = await islandMap.generate();
-
-		const clipOutData = JigsawCutout({ piecesX: gridSize.x, piecesY: gridSize.y, seed: 'cherry' });
 
 		// generate full map.
 		{
@@ -39,11 +34,21 @@ export class PuzzleGraphics {
 			canvasTexture.refresh(); // only needed in case we're on WebGL...
 		}
 
+		const bmp = await createImageBitmap(imageData);
+		return bmp;
+	}
+
+	// generate island graphics texture
+	async generatePieceTextures() {
+		const texSize = this.textureSize;
+		const bmp = await this.generatePuzzleTexture();
+		
+		const gridSize = this.gridSize;
+		const clipOutData = JigsawCutout({ piecesX: gridSize.x, piecesY: gridSize.y, seed: 'cherry' });
 		// this.add.image(0, 0, 'island').setOrigin(0).setScale(1.0);
 
 		// Draw image data to the canvas
-		const bmp = await createImageBitmap(imageData);
-
+		
 		for (const piece of clipOutData.pieces) {
 			const canvasTexture = notNull(this.scene.textures.createCanvas(`piece-${piece.x}-${piece.y}`, texSize.x, texSize.y));
 			const canvas = canvasTexture.getSourceImage() as HTMLCanvasElement;
@@ -84,5 +89,4 @@ export class PuzzleGraphics {
 			canvasTexture.refresh(); // only needed in case we're on WebGL...
 		}
 	}
-
 }
