@@ -7,6 +7,7 @@ import { roundToMultiple } from '../util/math.ts';
 import { PuzzleGraphics } from '../PuzzleGraphics.ts';
 import { notNull } from '../util/assert.ts';
 import { IslandScene } from '../IslandScene.ts';
+import { FpsLabel } from '../phaser/FpsLabel.ts';
 
 export default class extends Phaser.Scene {
 
@@ -109,6 +110,7 @@ export default class extends Phaser.Scene {
 
 	// determines level...
 	private targetNumPieces = 4;
+	private fpsLabel: FpsLabel | undefined = undefined;
 
 	create() {
 		this.initLevel();
@@ -149,11 +151,14 @@ export default class extends Phaser.Scene {
 
 		this.islandScene = new IslandScene(this, this.texture);
 		this.islandScene.init();
+		this.fpsLabel = new FpsLabel(this);
+		this.add.existing(this.fpsLabel);
 	}
 
 	islandScene: IslandScene | undefined = undefined;
 
-	update() {
+	update(time: number, delta: number) {
 		this.islandScene?.update();
+		this.fpsLabel?.update(time, delta);
 	}
 }
