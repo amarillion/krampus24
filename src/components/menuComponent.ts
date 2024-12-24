@@ -1,6 +1,7 @@
 // import menuBg from '../../assets/images/menu.png';
 import QRCode from 'qrcode';
 import { assert } from '../util/assert';
+import buttonClickSfxUrl from '../assets/Door_unlock.ogg?url';
 
 export class MenuComponent extends HTMLElement {
 
@@ -102,18 +103,28 @@ export class MenuComponent extends HTMLElement {
 			<small>play on mobile!</small><br>
 			<canvas id="qrcanvas"></canvas>
 		</div>
+		 <audio id="sfx"><source src="${buttonClickSfxUrl}"></audio>
 	`;
+	}
+
+	playAudio() {
+		const sfx = this.shadowRoot?.getElementById('sfx') as HTMLAudioElement;
+		if (sfx) {
+			sfx.autoplay = true;
+			sfx.load();
+		}
 	}
 
 	connectedCallback() {
 		this.shadowRoot?.querySelector('#startGame')?.addEventListener('click', () => {
+			this.playAudio();
 			this.dispatchEvent(new CustomEvent('Start'));
 			this.dispatchEvent(new CustomEvent('button-pressed'));
 		});
 
 		this.shadowRoot?.querySelector('#fullScreen')?.addEventListener('click', () => {
+			this.playAudio();
 			const elem = document.documentElement;
-
 			elem.requestFullscreen({ navigationUI: 'show' }).then(() => { }).catch(err => {
 				alert(`An error occurred while trying to switch into full-screen mode: ${err.message} (${err.name})`);
 			});

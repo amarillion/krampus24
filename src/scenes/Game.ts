@@ -38,7 +38,7 @@ export default class extends Phaser.Scene {
 		// add event listeners
 		for (const piece of this.puzzlePieces) {
 			piece.on('piece-in-place', () => this.checkPuzzleComplete());
-			piece.on('sfx', this.playSample);
+			piece.on('sfx', (sfxId: string) => this.playSample(sfxId));
 		}
 	}
 
@@ -58,8 +58,15 @@ export default class extends Phaser.Scene {
 		// TODO: remove dragDrop listeners?
 	}
 
+	private readonly soundMap: Record<string, Phaser.Sound.BaseSound> = {};
+
 	playSample(sfxId: string) {
-		console.log(`Please play sfx ${sfxId}`);
+		if (!(sfxId in this.soundMap)) {
+			console.log(`Sfx ${sfxId} requested but not found`);
+		}
+		else {
+			this.soundMap[sfxId].play();
+		}
 	}
 
 	checkPuzzleComplete() {
@@ -69,7 +76,7 @@ export default class extends Phaser.Scene {
 				color: '#7744ff',
 			});
 			// TODO: particle effect
-			this.playSample('puzzle-complete');
+			this.playSample('level-complete');
 
 			setTimeout(() => {
 				this.targetNumPieces += 3;
@@ -101,11 +108,15 @@ export default class extends Phaser.Scene {
 	private margin = new Point(0, 0);
 
 	// determines level...
-	private targetNumPieces = 10;
+	private targetNumPieces = 16;
 	private fpsLabel: FpsLabel | undefined = undefined;
 
 	create() {
 		this.initLevel();
+
+		for (const sfxId of [ 'pickup-puzzle-piece', 'drop-puzzle-piece', 'level-complete' ]) {
+			this.soundMap[sfxId] = this.game.sound.add(sfxId);
+		}
 	}
 
 	async initLevel() {
