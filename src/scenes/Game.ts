@@ -8,8 +8,9 @@ import { PuzzleGraphics } from '../PuzzleGraphics.ts';
 import { FpsLabel } from '../phaser/FpsLabel.ts';
 import { pointRange } from '../util/geom/pointRange.ts';
 import { Victory } from '../victory.ts';
+import { assert } from '../util/assert.ts';
 
-export default class extends Phaser.Scene {
+export default class GameScene extends Phaser.Scene {
 
 	constructor() {
 		super({ key: 'GameScene' });
@@ -54,7 +55,9 @@ export default class extends Phaser.Scene {
 		this.children.removeAll();
 		
 		// TODO: move to PuzzleGraphics:
+		// TODO: texture is not always removed for some reason
 		this.textures.remove('island');
+
 		for (const piece of this.puzzlePieces) {
 			this.textures.remove(`piece-${piece.config.gridPos.x}-${piece.config.gridPos.y}`);
 		}
@@ -122,7 +125,7 @@ export default class extends Phaser.Scene {
 	private margin = new Point(0, 0);
 
 	// determines level...
-	private targetNumPieces = 16;
+	private targetNumPieces = 9;
 	private fpsLabel: FpsLabel | undefined = undefined;
 
 	create() {
@@ -135,23 +138,43 @@ export default class extends Phaser.Scene {
 		}
 	}
 
+	static getOptimalPieceSize(targetNumPieces: number, canvasSize: Point) {
+		let gridSize;
+
+		function *pieceSizeVariants(startPieceSize: number) {
+			let currentPieceSize = startPieceSize;
+			while (currentPieceSize > 2 * SNAP_GRID) {
+				for (const [ x, y ] of [ [ 0, 1 ], [ 1, 0 ], [ 1, 1 ], [ 2, 0 ], [ 0, 2 ], [ 2, 1 ], [ 1, 2 ] ]) {
+					yield new Point(currentPieceSize, currentPieceSize).minus(Point.scale({ x, y }, SNAP_GRID));
+				}
+				currentPieceSize -= SNAP_GRID;
+			}
+		}
+		
+		const targetPieceSize = roundToMultiple(320, SNAP_GRID);
+		for (const pieceSize of pieceSizeVariants(targetPieceSize)) {
+			gridSize = new Point(
+				Math.max(2, Math.floor(canvasSize.x / pieceSize.x - 0.5)),
+				Math.max(2, Math.floor(canvasSize.y / pieceSize.y - 0.5))
+			);
+			if (gridSize.x * gridSize.y >= targetNumPieces) {
+				return { pieceSize, gridSize };
+			}
+		}
+
+		assert(false);
+	}
+
 	async initLevel() {
 		this.reset();
 		
 		const { width, height } = this.sys.game.canvas;
 		const canvasSize = new Point(width, height);
 
-		let targetPieceSize = roundToMultiple(320, SNAP_GRID);
-		
-		do {
-			targetPieceSize -= SNAP_GRID;
-			this.gridSize = new Point(
-				Math.max(2, Math.floor(canvasSize.x / targetPieceSize - 0.5)),
-				Math.max(2, Math.floor(canvasSize.y / targetPieceSize - 0.5))
-			);
-		} while (this.gridSize.x * this.gridSize.y < this.targetNumPieces);
-		
-		this.textureSize = Point.scale(this.gridSize, targetPieceSize);
+		const { pieceSize, gridSize } = GameScene.getOptimalPieceSize(this.targetNumPieces, canvasSize);
+				
+		this.gridSize = gridSize;
+		this.textureSize = Point.times(this.gridSize, pieceSize);
 		this.margin = canvasSize.minus(this.textureSize).scale(0.5);
 		
 		this.add.rectangle(this.margin.x, this.margin.y, this.textureSize.x, this.textureSize.y, 0xAAAAAA).setOrigin(0).setDepth(-1);
