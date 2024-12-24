@@ -25,6 +25,7 @@ export default class extends Phaser.Scene {
 		this.load.audio('level-complete', levelCompleteSfxUrl);
 		this.load.spritesheet('sprites', spritesUrl, { frameWidth: 40, frameHeight: 40 });
 
+		// TODO: sprite.play('foleAnimation') not working, why?
 		const animConfig = {
 			key: 'foleAnimation',
 			frames: this.anims.generateFrameNumbers('sprites', {
