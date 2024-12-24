@@ -166,11 +166,14 @@ export default class extends Phaser.Scene {
 			return this.puzzlePieces.find(p => p.contains(pointer));
 		};
 		dragDropBehavior.apply(this);
-		this.fpsLabel = new FpsLabel(this);
-		this.add.existing(this.fpsLabel);
+		
+		// uncomment to show FPS on screen.
+		// this.fpsLabel = new FpsLabel(this);
+		// this.add.existing(this.fpsLabel);
 	}
 
 	update(time: number, delta: number) {
+		// TODO: how do I make this get called automatically?
 		this.fpsLabel?.update(time, delta);
 
 		this.victory?.update();
