@@ -4,6 +4,7 @@ import WebFont from 'webfontloader';
 import pickupPieceSfxUrl from '../assets/Menu_manipulation_sound_2.ogg?url';
 import dropPieceSfxUrl from '../assets/Footsteps_single.ogg?url';
 import levelCompleteSfxUrl from '../assets/Victory_2.ogg?url';
+import spritesUrl from '../assets/FoleFront1.png?url';
 
 export default class extends Phaser.Scene {
 	private fontsReady = false;
@@ -22,6 +23,20 @@ export default class extends Phaser.Scene {
 		this.load.audio('pickup-puzzle-piece', pickupPieceSfxUrl);
 		this.load.audio('drop-puzzle-piece', dropPieceSfxUrl);
 		this.load.audio('level-complete', levelCompleteSfxUrl);
+		this.load.spritesheet('sprites', spritesUrl, { frameWidth: 40, frameHeight: 40 });
+
+		const animConfig = {
+			key: 'foleAnimation',
+			frames: this.anims.generateFrameNumbers('sprites', {
+				start: 13,
+				end: 15,
+				first: 13,
+			}),
+			frameRate: 100,
+			repeat: -1,
+		};
+		this.anims.create(animConfig);
+
 		WebFont.load({
 			google: {
 				families: [ 'Bangers' ],

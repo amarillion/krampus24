@@ -7,6 +7,7 @@ import { roundToMultiple } from '../util/math.ts';
 import { PuzzleGraphics } from '../PuzzleGraphics.ts';
 import { FpsLabel } from '../phaser/FpsLabel.ts';
 import { pointRange } from '../util/geom/pointRange.ts';
+import { Victory } from '../victory.ts';
 
 export default class extends Phaser.Scene {
 
@@ -20,6 +21,8 @@ export default class extends Phaser.Scene {
 	puzzlePieces: PuzzlePiece[] = [];
 
 	puzzle: PuzzleGraphics | undefined = undefined;
+
+	victory: Victory | undefined = undefined;
 
 	async createPuzzlePieces() {
 		this.puzzle = new PuzzleGraphics(this, this.textureSize, this.gridSize);
@@ -43,6 +46,8 @@ export default class extends Phaser.Scene {
 	}
 
 	reset() {
+		this.victory?.reset();
+		
 		// TODO: cleaner solution to make each level its own Scene, and destroy that.
 		// no risk of lingering references...
 		this.children.each(c => c.destroy());
@@ -71,12 +76,21 @@ export default class extends Phaser.Scene {
 
 	checkPuzzleComplete() {
 		if (this.puzzlePieces.every(i => i.isCorrectPosition())) {
-			this.add.text(100, 100, 'Congratulations - Puzzle Complete!', {
+			
+			const text = this.add.text(-1000, 100, 'Congratulations - Puzzle Complete!', {
 				font: '64px Bangers',
 				color: '#7744ff',
 			});
-			// TODO: particle effect
+
+			this.tweens.add({
+				targets: [ text ],
+				duration: 5000,
+				x: 1000,
+			});
+			
 			this.playSample('level-complete');
+
+			this.victory?.init();
 
 			setTimeout(() => {
 				this.targetNumPieces += 3;
@@ -112,6 +126,8 @@ export default class extends Phaser.Scene {
 	private fpsLabel: FpsLabel | undefined = undefined;
 
 	create() {
+		this.victory = new Victory(this);
+
 		this.initLevel();
 
 		for (const sfxId of [ 'pickup-puzzle-piece', 'drop-puzzle-piece', 'level-complete' ]) {
@@ -121,7 +137,7 @@ export default class extends Phaser.Scene {
 
 	async initLevel() {
 		this.reset();
-
+		
 		const { width, height } = this.sys.game.canvas;
 		const canvasSize = new Point(width, height);
 
@@ -156,5 +172,7 @@ export default class extends Phaser.Scene {
 
 	update(time: number, delta: number) {
 		this.fpsLabel?.update(time, delta);
+
+		this.victory?.update();
 	}
 }
