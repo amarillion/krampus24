@@ -11,8 +11,11 @@ npm run build
 # Switch to gh-pages branch
 git checkout gh-pages
 
-# Remove previous version
-rm -r docs
+## Remove previous version
+# rm -r docs
+
+# Remove previous version but keep README.txt
+find docs ! -name 'README.txt' -type f -exec rm -f {} +
 
 # move our dist folder to the github standard docs folder
 mv dist docs
