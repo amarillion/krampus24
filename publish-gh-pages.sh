@@ -18,7 +18,7 @@ git checkout gh-pages
 find docs ! -name 'README.txt' -type f -exec rm -f {} +
 
 # move our dist folder to the github standard docs folder
-mv dist docs
+mv dist/* docs/
 git add docs
 git commit -m "Update gh-pages with latest version"
 
