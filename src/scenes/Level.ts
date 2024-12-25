@@ -9,15 +9,18 @@ import { FpsLabel } from '../phaser/FpsLabel.ts';
 import { pointRange } from '../util/geom/pointRange.ts';
 import { Victory } from '../victory.ts';
 import { assert } from '../util/assert.ts';
+import { Params } from '../Params.ts';
 
-export default class GameScene extends Phaser.Scene {
+export default class LevelScene extends Phaser.Scene {
 
 	constructor() {
-		super({ key: 'GameScene' });
+		super({ key: 'LevelScene' });
 	}
 
 	init() {}
-	preload() {}
+	preload() {
+
+	}
 	
 	puzzlePieces: PuzzlePiece[] = [];
 
@@ -27,6 +30,7 @@ export default class GameScene extends Phaser.Scene {
 
 	async createPuzzlePieces() {
 		this.puzzle = new PuzzleGraphics(this, this.textureSize, this.gridSize);
+
 		await this.puzzle.generatePieceTextures();
 
 		const texSize = this.textureSize;
@@ -44,26 +48,6 @@ export default class GameScene extends Phaser.Scene {
 			piece.on('piece-in-place', () => this.checkPuzzleComplete());
 			piece.on('sfx', (sfxId: string) => this.playSample(sfxId));
 		}
-	}
-
-	reset() {
-		this.victory?.reset();
-		
-		// TODO: cleaner solution to make each level its own Scene, and destroy that.
-		// no risk of lingering references...
-		this.children.each(c => c.destroy());
-		this.children.removeAll();
-		
-		// TODO: move to PuzzleGraphics:
-		// TODO: texture is not always removed for some reason
-		this.textures.remove('island');
-
-		for (const piece of this.puzzlePieces) {
-			this.textures.remove(`piece-${piece.config.gridPos.x}-${piece.config.gridPos.y}`);
-		}
-
-		this.puzzlePieces = [];
-		// TODO: remove dragDrop listeners?
 	}
 
 	private readonly soundMap: Record<string, Phaser.Sound.BaseSound> = {};
@@ -96,10 +80,27 @@ export default class GameScene extends Phaser.Scene {
 			this.victory?.init();
 
 			setTimeout(() => {
-				this.targetNumPieces += 3;
-				this.initLevel();
+				this.nextLevel();
 			}, 5000);
 		}
+	}
+
+	nextLevel() {
+		// increase difficulty for next level scene
+		this.registry.set('targetNumPieces', (this.registry.get('targetNumPieces') as number) + Params.levelIncrease);
+
+		// recommended way to switch scene according to https://docs.phaser.io/phaser/concepts/scenes
+
+		// After destruction, `this.scene` and `this.sys.scenePlugin` are unusable.
+		// So we need to use the manager directly.
+		const { manager } = this.scene;
+
+		this.events.once('destroy', () => {
+			manager.add('LevelScene', LevelScene);
+			manager.start('LevelScene');
+		});
+
+		this.scene.remove();
 	}
 
 	scatterPuzzlePieces() {
@@ -124,8 +125,6 @@ export default class GameScene extends Phaser.Scene {
 	private gridSize = new Point(0, 0);
 	private margin = new Point(0, 0);
 
-	// determines level...
-	private targetNumPieces = 9;
 	private fpsLabel: FpsLabel | undefined = undefined;
 
 	create() {
@@ -166,12 +165,12 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	async initLevel() {
-		this.reset();
-		
 		const { width, height } = this.sys.game.canvas;
 		const canvasSize = new Point(width, height);
 
-		const { pieceSize, gridSize } = GameScene.getOptimalPieceSize(this.targetNumPieces, canvasSize);
+		const targetNumPieces = this.registry.get('targetNumPieces') as number;
+		
+		const { pieceSize, gridSize } = LevelScene.getOptimalPieceSize(targetNumPieces, canvasSize);
 				
 		this.gridSize = gridSize;
 		this.textureSize = Point.times(this.gridSize, pieceSize);

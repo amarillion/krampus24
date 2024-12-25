@@ -10,11 +10,15 @@ export class PuzzleGraphics {
 	scene: Phaser.Scene;
 	textureSize: Point;
 	gridSize: Point;
+	textureKeys: string[] = [];
 
 	constructor(scene: Phaser.Scene, textureSize: Point, gridSize: Point) {
 		this.scene = scene;
 		this.textureSize = textureSize;
 		this.gridSize = gridSize;
+		scene.events.once('destroy', () => {
+			this.removeTextures();
+		});
 	}
 
 	async generatePuzzleTexture() {
@@ -24,15 +28,12 @@ export class PuzzleGraphics {
 		const imageData = await islandMap.generate();
 
 		// generate full map.
-		{
-			const canvasTexture = notNull(this.scene.textures.createCanvas('island', texSize.x, texSize.y));
+		const canvasTexture = this.createTexture('island', texSize);
+		const canvas = canvasTexture.getSourceImage() as HTMLCanvasElement;
+		const context = notNull(canvas.getContext('2d'));
 
-			const canvas = canvasTexture.getSourceImage() as HTMLCanvasElement;
-			const context = notNull(canvas.getContext('2d'));
-
-			context.putImageData(imageData, 0, 0);
-			canvasTexture.refresh(); // only needed in case we're on WebGL...
-		}
+		context.putImageData(imageData, 0, 0);
+		canvasTexture.refresh(); // only needed in case we're on WebGL...
 
 		const bmp = await createImageBitmap(imageData);
 		return bmp;
@@ -50,7 +51,8 @@ export class PuzzleGraphics {
 		// Draw image data to the canvas
 		
 		for (const piece of clipOutData.pieces) {
-			const canvasTexture = notNull(this.scene.textures.createCanvas(`piece-${piece.x}-${piece.y}`, texSize.x, texSize.y));
+			const textureKey = `piece-${piece.x}-${piece.y}`;
+			const canvasTexture = this.createTexture(textureKey, texSize);
 			const canvas = canvasTexture.getSourceImage() as HTMLCanvasElement;
 			const context = notNull(canvas.getContext('2d'));
 			
@@ -87,6 +89,19 @@ export class PuzzleGraphics {
 			context.drawImage(bmp, 0, 0);
 
 			canvasTexture.refresh(); // only needed in case we're on WebGL...
+		}
+	}
+
+	private createTexture(textureKey: string, texSize: Point) {
+		const canvasTexture = notNull(this.scene.textures.createCanvas(textureKey, texSize.x, texSize.y));
+		this.textureKeys.push(textureKey);
+		return canvasTexture;
+	}
+
+	removeTextures() {
+		for (const textureKey of this.textureKeys) {
+			console.log(`Removing ${textureKey}`);
+			this.scene.textures.remove(textureKey);
 		}
 	}
 }

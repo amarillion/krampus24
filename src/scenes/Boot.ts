@@ -5,6 +5,7 @@ import pickupPieceSfxUrl from '../assets/Menu_manipulation_sound_2.ogg?url';
 import dropPieceSfxUrl from '../assets/Footsteps_single.ogg?url';
 import levelCompleteSfxUrl from '../assets/Victory_2.ogg?url';
 import spritesUrl from '../assets/FoleFront1.png?url';
+import { Params } from '../Params';
 
 export default class extends Phaser.Scene {
 	private fontsReady = false;
@@ -14,6 +15,8 @@ export default class extends Phaser.Scene {
 	}
 
 	preload() {
+		this.registry.set('targetNumPieces', Params.initialPieces);
+
 		this.fontsReady = false;
 		this.fontsLoaded = this.fontsLoaded.bind(this);
 		this.add.text(100, 100, 'loading fonts...');

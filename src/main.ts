@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 
 import BootScene from './scenes/Boot.js';
 import SplashScene from './scenes/Splash.js';
-import GameScene from './scenes/Game.js';
+import LevelScene from './scenes/Level.js';
 
 import { WebComponentScene } from './phaser/WebComponentScene.js';
 
@@ -16,8 +16,8 @@ const gameConfig = {
 	scene: [
 		BootScene,
 		SplashScene,
-		GameScene,
-		new WebComponentScene({ key: 'TitleScreen', next: 'GameScene' }),
+		LevelScene,
+		new WebComponentScene({ key: 'TitleScreen', next: 'LevelScene' }),
 	],
 };
 

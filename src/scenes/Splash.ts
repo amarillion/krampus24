@@ -13,6 +13,7 @@ export default class extends Phaser.Scene {
 	}
 
 	create() {
+		// initial level state
 		this.scene.start('TitleScreen');
 	}
 
