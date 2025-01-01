@@ -1,4 +1,4 @@
-import { randomThunk } from './random.js';
+import { fromSeed } from '../util/random/seed.js';
 import { always, pipe } from './utils.js';
 
 export type MoveType = [ number, number ];
@@ -40,9 +40,8 @@ const STANDARD_EDGE = [
 ];
 
 export function JigsawCutout({ piecesX = 5, piecesY = 5, seed = 'apple' }: JigsawConfig = {}): PiecesType {
-	const random = randomThunk({ seed });
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const randomly = <T>(fn: (...rest: any[]) => T) => (value: T, ...args: any[]) => random() < 0.5 ? fn(value, ...args) : value;
+	const random = fromSeed(seed);
+	const randomly = <T>(fn: (t: T) => T) => (value: T) => random() < 0.5 ? fn(value) : value;
 	const createEdge = pipe(
 		always(STANDARD_EDGE),
 		randomly(rotateCurveStart),
