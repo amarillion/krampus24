@@ -153,8 +153,8 @@ export default class LevelScene extends Phaser.Scene {
 		const targetPieceSize = roundToMultiple(320, SNAP_GRID);
 		for (const pieceSize of pieceSizeVariants(targetPieceSize)) {
 			gridSize = new Point(
-				Math.max(2, Math.floor(canvasSize.x / pieceSize.x - 0.5)),
-				Math.max(2, Math.floor(canvasSize.y / pieceSize.y - 0.5))
+				Math.max(1, Math.floor(canvasSize.x / pieceSize.x - 0.5)),
+				Math.max(1, Math.floor(canvasSize.y / pieceSize.y - 0.5))
 			);
 			if (gridSize.x * gridSize.y >= targetNumPieces) {
 				return { pieceSize, gridSize };
