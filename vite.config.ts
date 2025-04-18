@@ -21,18 +21,20 @@ export default defineConfig({
 				name: 'KrampusHack 2024',
 				short_name: 'krampus24',
 
-				// start_url configured for github pages: https://amarillion.github.io/krampus24/
-				start_url: '/krampus24/',
+				// URL relative to manifest file
+				start_url: './',
 
 				display: 'standalone',
 				background_color: '#ffffbb',
 				theme_color: '#7744ff',
 				icons: [ {
-					src: '/logo192.png',
+					// relative to manifest file
+					src: './logo192.png',
 					sizes: '192x192',
 					type: 'image/png',
 				}, {
-					src: '/logo512.png',
+					// relative to manifest file
+					src: './logo512.png',
 					sizes: '512x512',
 					type: 'image/png',
 				} ],
